@@ -83,6 +83,8 @@ public class Request {
 	private boolean				success = false;
 	private int					statusCode = 0;
 	
+	private String				referer = null;
+	
 	private HttpURLConnection	con = null;
 	
 	/**
@@ -176,6 +178,8 @@ public class Request {
 	 */
 	public Request setHeader(Map<String, String> h)
 	{
+		if (h.containsKey("Referer"))
+			referer = null;
 		this.header = h;
 		return (this);
 	}
@@ -187,6 +191,8 @@ public class Request {
 	 */
 	public Request addHeader(String key, String value)
 	{
+		if (key.equalsIgnoreCase("Referer"))
+			referer = null;
 		this.header.put(key, value);
 		return (this);
 	}
@@ -417,6 +423,7 @@ public class Request {
 	@SuppressWarnings("deprecation")
 	public void execute()
 	{
+		generateheader();
 		this.success = false;
 		this.statusCode = 0;
 		//cookies
@@ -512,6 +519,19 @@ public class Request {
 		{
             try {httpclient.close();} catch (IOException e) {}
         }
+	}
+	
+	private void generateheader()
+	{
+		String host = url;
+		if (!host.substring(4).equalsIgnoreCase("www."))
+		{
+			host = "www." + url;
+		}
+		header.put("Host", host);
+		if (referer != null)
+			header.put("Referer", referer);
+		referer = host;
 	}
 	
 	private String trimStringByString(String text, String trimBy)
