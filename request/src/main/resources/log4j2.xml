@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration status="INFO" monitoringInterval="30" shutdownHook="enable">
+	<Appenders>
+	    <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n" />
+        </Console>
+		<File name="couchdbfile" fileName="./logs/aero_connector_couchdb.log" immediateFlush="false" append="false" >
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+		</File>
+		<File name="connectorfile" fileName="./logs/aero_connector.log" immediateFlush="false" append="false">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+		</File>
+		<File name="initfile" fileName="./logs/aero_init.log" immediateFlush="false" append="false" >
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+		</File>
+		<File name="metafile" fileName="./logs/aero_metadata.log" immediateFlush="false" append="false" >
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+		</File>
+		<File name="clientfile" fileName="./logs/aero_clients.log" immediateFlush="false" append="false" >
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1}:%L - %m%n"/>
+		</File>
+	</Appenders>
+	<Loggers>
+		<!-- LightCouch -->
+		<Logger name="log4j.logger.org.lightcouch" level="ERROR" additivity="false">
+			<AppenderRef ref="console"/>
+			<AppenderRef ref="couchdbfile"/>
+		</Logger>
+		
+		<Logger name="org.lightcouch.CouchDbClient" level="ERROR" additivity="false">
+			<AppenderRef ref="console"/>
+			<AppenderRef ref="couchdbfile"/>
+		</Logger>
+		
+		<!-- Apache HttpClient  -->
+		<Logger name="log4j.logger.org.apache.http" level="ERROR" additivity="false">
+			<AppenderRef ref="console"/>
+		</Logger>
+		<Logger name="log4j.logger.org.apache.http" level="ERROR" additivity="false">
+			<AppenderRef ref="couchdbfile"/>
+		</Logger>
+			
+		<!-- AERO -->
+		<Logger name="com.efrontech" level="INFO" additivity="false">
+			<AppenderRef ref="metafile"/>
+			<AppenderRef ref="console"/>
+		</Logger>
+		
+		<Logger name="com.efrontech.cloudant" level="INFO" additivity="false">
+			<AppenderRef ref="clientfile"/>
+			<AppenderRef ref="console"/>
+		</Logger>
+		<Logger name="com.efrontech.salesForce" level="INFO" additivity="false">
+			<AppenderRef ref="clientfile"/>
+			<AppenderRef ref="console"/>
+		</Logger>
+		
+		<!-- AERO Connector  -->
+		<Logger name="com.efrontech.synchronizer" level="INFO" additivity="false">
+			<AppenderRef ref="console"/>
+			<AppenderRef ref="connectorfile"/>
+		</Logger>
+		
+		<!-- AERO Connector  -->
+		<Logger name="com.efrontech.aeroUtils" level="OFF" additivity="false">
+			<AppenderRef ref="console"/>
+			<AppenderRef ref="connectorfile"/>
+		</Logger>
+		
+		<!-- AERO Init  -->
+		<Logger name="com.efrontech.initprocessor" level="INFO" additivity="false">
+			<AppenderRef ref="console"/>
+			<AppenderRef ref="initfile"/>
+		</Logger>
+		
+        <Root level="INFO">
+            <AppenderRef ref="console"/>
+        </Root>
+	</Loggers>
+
+</Configuration>
