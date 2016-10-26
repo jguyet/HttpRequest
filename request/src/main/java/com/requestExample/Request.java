@@ -352,7 +352,7 @@ public class Request {
 	}
 	
 	/**
-	 * IN WORKING
+	 * I WORK
 	 * @return
 	 */
 	public boolean ConnectProxy()
@@ -386,7 +386,7 @@ public class Request {
 	}
 	
 	/**
-	 * IN WORKING
+	 * I WORK
 	 * Disconnect proxy
 	 */
 	public void disconnectToProxy()
