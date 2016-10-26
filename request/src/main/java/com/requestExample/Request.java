@@ -34,6 +34,22 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+/**
+ * @author jguyet
+ * 
+ * default :
+ * 
+ * port : 443
+ * protocol : http
+ * proxy : false
+ * method : GET
+ * 
+ * proxy default :
+ * 
+ * port : 222
+ * IP : 127.0.0.1
+ * protocol : http
+ */
 public class Request {
 	
 	private String				url = "";
@@ -55,11 +71,18 @@ public class Request {
 	
 	private HttpURLConnection	con = null;
 	
+	/**
+	 * Constructor
+	 */
 	public Request()
 	{
 		Logger.getLogger(org.apache.http.impl.execchain.RetryExec.class).setLevel(Level.OFF);
 	}
 	
+	/**
+	 * Method execute set POST
+	 * @return
+	 */
 	public Request setPost()
 	{
 		if (GET)
@@ -68,6 +91,10 @@ public class Request {
 		return (this);
 	}
 	
+	/**
+	 * Method execute set GET (default)
+	 * @return
+	 */
 	public Request setGET()
 	{
 		if (POST)
@@ -76,6 +103,12 @@ public class Request {
 		return (this);
 	}
 	
+	/**
+	 * active proxy
+	 * @param ip
+	 * @param port
+	 * @return
+	 */
 	public Request setProxy(String ip, int port)
 	{
 		this.proxyIP = ip;
@@ -84,121 +117,213 @@ public class Request {
 		return (this);
 	}
 	
+	/**
+	 * change protocol connection proxy https
+	 * @return
+	 */
 	public Request setProxyHttps()
 	{
 		this.proxyProtocol = "https";
 		return (this);
 	}
 	
+	/**
+	 * change protocol connection proxy http (default)
+	 * @return
+	 */
 	public Request setProxyHttp()
 	{
 		this.proxyProtocol = "http";
 		return (this);
 	}
 	
+	/**
+	 * replace Map<String, String> header map
+	 * @param h
+	 * @return
+	 */
 	public Request setHeader(Map<String, String> h)
 	{
 		this.header = h;
 		return (this);
 	}
-	
+	/**
+	 * Add key and value into the header
+	 * @param key
+	 * @param value
+	 * @return
+	 */
 	public Request addHeader(String key, String value)
 	{
 		this.header.put(key, value);
 		return (this);
 	}
 	
+	/**
+	 * clean current header
+	 * @return
+	 */
 	public Request clearHeader()
 	{
 		this.header.clear();
 		return (this);
 	}
 	
+	/**
+	 * get all cookies
+	 * @return
+	 */
 	public CookieStore getCookieStore()
 	{
 		return (cookieStore);
 	}
 	
+	/**
+	 * replace cookieStore
+	 * @param cook
+	 * @return
+	 */
 	public Request setCookieStore(CookieStore cook)
 	{
 		this.cookieStore = cook;
 		return (this);
 	}
 	
+	/**
+	 * add one Cookie into current cookieStore
+	 * @param cook
+	 * @return
+	 */
 	public Request addCookie(Cookie cook)
 	{
 		this.cookieStore.addCookie(cook);
 		return (this);
 	}
 	
+	/**
+	 * clean cookieStore
+	 * @return
+	 */
 	public Request clearCookie()
 	{
 		this.cookieStore.clear();
 		return (this);
 	}
 	
+	/**
+	 * set protocol http (default)
+	 * @return
+	 */
 	public Request setProtocolHttp()
 	{
 		this.protocol = "http";
 		return (this);
 	}
 	
+	/**
+	 * set protocol https (default)
+	 * @return
+	 */
 	public Request setProtocolHttps()
 	{
 		this.protocol = "https";
 		return (this);
 	}
 	
+	/**
+	 * change url
+	 * @param url
+	 * @return
+	 */
 	public Request setUrl(String url)
 	{
 		this.url = url;
 		return (this);
 	}
 	
+	/**
+	 * change port server web
+	 * @param port
+	 * @return
+	 */
 	public Request setPort(int port)
 	{
 		this.port = port;
 		return (this);
 	}
 	
+	/**
+	 * replace params into your POST
+	 * @param params
+	 * @return
+	 */
 	public Request setParams(List<NameValuePair> params)
 	{
 		this.params = params;
 		return (this);
 	}
 	
+	/**
+	 * add one param into your POST
+	 * @param params
+	 * @return
+	 */
 	public Request addParam(String key, String value)
 	{
 		params.add(new BasicNameValuePair(key, value));
 		return (this);
 	}
 	
+	/**
+	 * clean all params of your POST
+	 * @return
+	 */
 	public Request clearParam()
 	{
 		params.clear();
 		return (this);
 	}
 	
+	/**
+	 * return if use proxy
+	 * @return
+	 */
 	public boolean useProxi()
 	{
 		return (this.useProxy);
 	}
 	
+	/**
+	 * return statut code after execute (base 0)
+	 * @return
+	 */
 	public int getStatusCode()
 	{
 		return (this.statusCode);
 	}
 	
+	/**
+	 * if have error on execute !success
+	 * @return
+	 */
 	public boolean isStoppedByError()
 	{
 		return (!success);
 	}
 	
+	/**
+	 * return content after execute
+	 * @return
+	 */
 	public String getContent()
 	{
 		return (this.content);
 	}
 	
+	/**
+	 * Test proxy return false if connection is null
+	 * @return
+	 */
 	public boolean isProxyOK()
 	{
 		try {
@@ -226,6 +351,10 @@ public class Request {
 		return (false);
 	}
 	
+	/**
+	 * IN WORKING
+	 * @return
+	 */
 	public boolean ConnectProxy()
 	{
 		try {
@@ -256,6 +385,10 @@ public class Request {
 		return (false);
 	}
 	
+	/**
+	 * IN WORKING
+	 * Disconnect proxy
+	 */
 	public void disconnectToProxy()
 	{
 		if (con == null)
@@ -264,6 +397,9 @@ public class Request {
 			con.disconnect();
 	}
 	
+	/**
+	 * process request
+	 */
 	public void execute()
 	{
 		this.success = false;
