@@ -1,9 +1,6 @@
 package com.requestExample;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -23,7 +20,6 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
-import org.apache.http.auth.NTCredentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
@@ -34,7 +30,6 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
-import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
@@ -86,7 +81,7 @@ public class Request {
 	private String				referer = null;
 	
 	private HttpURLConnection	con = null;
-	
+	private HttpClientContext	context = null;
 	/**
 	 * Constructor
 	 */
@@ -275,14 +270,15 @@ public class Request {
 	 */
 	public Request setUrl(String url)
 	{
-		if (url.split("://").length > 1)
+		/*if (url.split("://").length > 1)
 		{
 			if (url.split("://")[0].equalsIgnoreCase("http"))
 				this.setProtocolHttp();
 			else if (url.split("://")[0].equalsIgnoreCase("https"))
 				this.setProtocolHttps();
 			url = trimStringByString(url.split("://")[1], "/");
-		}
+			System.out.println(protocol + " " + url);
+		}*/
 		this.url = url;
 		return (this);
 	}
@@ -417,18 +413,11 @@ public class Request {
 		return (false);
 	}
 	
-	/**
-	 * process request
-	 */
-	@SuppressWarnings("deprecation")
-	public void execute()
+	private CloseableHttpClient getClient()
 	{
-		generateheader();
-		this.success = false;
-		this.statusCode = 0;
 		//cookies
 		RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.BEST_MATCH).build();
-	    HttpClientContext context = HttpClientContext.create();
+	    context = HttpClientContext.create();
 	    context.setCookieStore(cookieStore);
 	    //credentials
 	    CredentialsProvider credsProvider = null;
@@ -439,91 +428,156 @@ public class Request {
 		    credsProvider = new BasicCredentialsProvider();
 		    credsProvider.setCredentials(authScope, credentials);
 	    }
-	    //------------------builder--------------------//
-	    HttpClientBuilder builder = HttpClients.custom();
+		HttpClientBuilder builder = HttpClients.custom();
 	    builder.setDefaultRequestConfig(globalConfig);
 	    builder.setDefaultCookieStore(cookieStore);
 	    if (credsProvider != null)
 	    	builder.setDefaultCredentialsProvider(credsProvider);
 	    //--------------------------------------------//
 		CloseableHttpClient httpclient = builder.build();
+		return httpclient;
+	}
+	
+	private boolean sendPost()
+	{
+		CloseableHttpClient httpclient = null;
 		CloseableHttpResponse response = null;
-		
 		try {
-            HttpHost target = new HttpHost(url, port, protocol);
-            HttpHost proxy = null;
-            RequestConfig config = null;
+			httpclient = getClient();
+			HttpPost httpPost = new HttpPost(url);
 
-            if (useProxy)
-            {
+			HttpHost proxy = null;
+	        RequestConfig config = null;
+	
+	        if (useProxy)
+	        {
 	            proxy = new HttpHost(proxyIP, proxyPort, proxyProtocol);
 	            config = RequestConfig.custom()
 	                    .setProxy(proxy)
 	                    .build();
-            }
-            
-            HttpRequest request = null;
-            if (GET)
-            {
-            	request = new HttpGet("/");
-            	if (config != null)
-            	{
-                	((HttpGet)request).setConfig(config);
-                	request.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-            	}
-            }
-            else if (POST)
-            {
-            	request = new HttpPost("/");
-            	if (config != null)
-            	{
-                	((HttpPost)request).setConfig(config);
-                	request.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
-            	}
-				((HttpPost)request).setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
-            }
-           
-            for (Entry<String, String> entry : header.entrySet())
-            {
-            	request.addHeader(entry.getKey(), entry.getValue());
-            }
-            
-            try
-            {
-            	response = httpclient.execute(target, request, context);
-            	HttpEntity entity = response.getEntity();
-            	this.cookieStore = context.getCookieStore();
+	        }
+	        
+	        if (config != null)
+	    	{
+	        	httpPost.setConfig(config);
+	    	}
+	        try {
+				httpPost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+				response = httpclient.execute(httpPost, context);
+				content = EntityUtils.toString(response.getEntity(), "UTF-8");
+				this.cookieStore = context.getCookieStore();
             	this.statusCode = response.getStatusLine().getStatusCode();
-    			this.content = EntityUtils.toString(entity, "UTF-8");
     			this.success = true;
-            }
-            catch (Exception e)
-            {
-            	e.printStackTrace();
-            	this.success = false;
-            }
-            finally
-            {
-                try {
-                	if (response != null)
-                		response.close();
-                	} catch (IOException e) {}
-            }
-        } catch (UnsupportedEncodingException e)
+    			System.out.println(content);
+			}
+	        catch (Exception e)
+	        {
+	        	e.printStackTrace();
+	        	this.success = false;
+	        }
+	        finally
+	        {
+	            try {
+	            	if (response != null)
+	            		response.close();
+	            	} catch (IOException e) {}
+	        }
+		}
+		catch (Exception e)
 		{
-        	e.printStackTrace();
-        	//error encoding
-        	this.success = false;
+			e.printStackTrace();
+			this.success = false;
+			//logger.error("error in openSession",e);
 		}
 		finally
 		{
-            try {httpclient.close();} catch (IOException e) {}
+            try {
+            	if (httpclient != null)
+            		httpclient.close();
+            	} catch (IOException e) {}
         }
+		return true;
+	}
+	
+	
+	private boolean sendGet()
+	{
+		CloseableHttpClient httpclient = null;
+		CloseableHttpResponse response = null;
+		try {
+			httpclient = getClient();
+			HttpGet httpGet = new HttpGet(url);
+			
+			HttpHost proxy = null;
+	        RequestConfig config = null;
+	
+	        if (useProxy)
+	        {
+	            proxy = new HttpHost(proxyIP, proxyPort, proxyProtocol);
+	            config = RequestConfig.custom()
+	                    .setProxy(proxy)
+	                    .build();
+	        }
+	        
+	        if (config != null)
+	    	{
+	        	httpGet.setConfig(config);
+	    	}
+	        try {
+				response = httpclient.execute(httpGet, context);
+				content = EntityUtils.toString(response.getEntity(), "UTF-8");
+				this.cookieStore = context.getCookieStore();
+            	this.statusCode = response.getStatusLine().getStatusCode();
+    			this.success = true;
+			}
+	        catch (Exception e)
+	        {
+	        	e.printStackTrace();
+	        	this.success = false;
+	        }
+	        finally
+	        {
+	            try {
+	            	if (response != null)
+	            		response.close();
+	            	} catch (IOException e) {}
+	        }
+		}
+		catch (Exception e)
+		{
+			this.success = false;
+		}
+		finally
+		{
+            try {
+            	if (httpclient != null)
+            		httpclient.close();
+            	} catch (IOException e) {}
+        }
+		return true;
+	}
+	
+	/**
+	 * process request
+	 */
+	public void execute()
+	{
+		generateheader();
+		if (POST)
+		{
+			sendPost();
+		}
+		else if (GET)
+		{
+			sendGet();
+		}
 	}
 	
 	private void generateheader()
 	{
 		String host = url;
+		
+		host = host.replace("https://", "").replace("http://", "");
 		if (!host.substring(4).equalsIgnoreCase("www."))
 		{
 			host = "www." + url;
