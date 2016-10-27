@@ -6,11 +6,16 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.SocketAddress;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.net.ssl.SSLException;
+
 import java.util.TreeMap;
 
 import org.apache.http.HttpEntity;
@@ -19,9 +24,11 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.NoHttpResponseException;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
 import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.CookieSpecs;
@@ -472,6 +479,34 @@ public class Request {
     			this.success = true;
     			System.out.println(content);
 			}
+	        catch (ClientProtocolException e)
+	        {
+	        	if (this.proxyProtocol.equalsIgnoreCase("http"))
+	        	{
+	        		this.setProxyHttps();
+	        		return sendPost();
+	        	}
+	        	this.success = false;
+	        }
+	        catch (SSLException e)
+	        {
+	        	this.success = false;
+	        	System.out.println("SSL Unrecognized");
+	        }
+	        catch (NoHttpResponseException e)
+	        {
+	        	this.success = false;
+	        	System.out.println("Http Response Timeout");
+	        }
+	        catch (SocketTimeoutException e)
+	        {
+	        	this.success = false;
+	        	System.out.println("Connection Timeout");
+	        }
+	        catch (SocketException e)
+	        {
+	        	this.success = false;
+	        }
 	        catch (Exception e)
 	        {
 	        	e.printStackTrace();
@@ -535,6 +570,34 @@ public class Request {
             	this.statusCode = response.getStatusLine().getStatusCode();
     			this.success = true;
 			}
+	        catch (ClientProtocolException e)
+	        {
+	        	if (this.proxyProtocol.equalsIgnoreCase("http"))
+	        	{
+	        		this.setProxyHttps();
+	        		return sendGet();
+	        	}
+	        	this.success = false;
+	        }
+	        catch (SSLException e)
+	        {
+	        	this.success = false;
+	        	System.out.println("SSL Unrecognized");
+	        }
+	        catch (NoHttpResponseException e)
+	        {
+	        	this.success = false;
+	        	System.out.println("Http Response Timeout");
+	        }
+	        catch (SocketTimeoutException e)
+	        {
+	        	this.success = false;
+	        	System.out.println("Connection Timeout");
+	        }
+	        catch (SocketException e)
+	        {
+	        	this.success = false;
+	        }
 	        catch (Exception e)
 	        {
 	        	e.printStackTrace();
@@ -548,6 +611,7 @@ public class Request {
 	            	} catch (IOException e) {}
 	        }
 		}
+		
 		catch (Exception e)
 		{
 			this.success = false;
