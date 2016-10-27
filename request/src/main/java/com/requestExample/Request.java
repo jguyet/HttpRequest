@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.auth.AuthScope;
@@ -41,12 +42,12 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+
 /**
  * @author jguyet
  * 
  * default :
  * 
- * port : 80
  * protocol : http
  * proxy : false
  * method : GET
@@ -61,7 +62,6 @@ public class Request {
 	
 	private String				url = "";
 	private String				protocol = "http";
-	private int					port = 80;
 	private boolean				useProxy = false;
 	private String				proxyIP = "127.0.0.1";
 	private int					proxyPort = 222;
@@ -73,8 +73,10 @@ public class Request {
 	private boolean				GET = true;
 	private boolean				POST = false;
 	List<NameValuePair>			params = new ArrayList<NameValuePair>();
+	private HttpEntity			httpEntity = null;
 	
 	private String 				content = null;
+	private HttpResponse		HttpResponse = null;
 	private boolean				success = false;
 	private int					statusCode = 0;
 	
@@ -264,33 +266,13 @@ public class Request {
 	}
 	
 	/**
-	 * change url
+	 * change url syntax = http://website.com
 	 * @param url
 	 * @return
 	 */
 	public Request setUrl(String url)
 	{
-		/*if (url.split("://").length > 1)
-		{
-			if (url.split("://")[0].equalsIgnoreCase("http"))
-				this.setProtocolHttp();
-			else if (url.split("://")[0].equalsIgnoreCase("https"))
-				this.setProtocolHttps();
-			url = trimStringByString(url.split("://")[1], "/");
-			System.out.println(protocol + " " + url);
-		}*/
 		this.url = url;
-		return (this);
-	}
-	
-	/**
-	 * change port server web
-	 * @param port
-	 * @return
-	 */
-	public Request setPort(int port)
-	{
-		this.port = port;
 		return (this);
 	}
 	
@@ -323,6 +305,12 @@ public class Request {
 	public Request clearParam()
 	{
 		params.clear();
+		return (this);
+	}
+	
+	public Request setHttpEntity(HttpEntity e)
+	{
+		httpEntity = e;
 		return (this);
 	}
 	
@@ -362,6 +350,11 @@ public class Request {
 		return (this.content);
 	}
 	
+	public HttpResponse getHttpReponse()
+	{
+		return (this.HttpResponse);
+	}
+	
 	/**
 	 * check statusCode and if error detected
 	 * @return
@@ -389,7 +382,7 @@ public class Request {
 	        Proxy pr = new Proxy(Proxy.Type.HTTP, proxyAddr);
 	        System.setProperty("http.proxyHost", proxyIP);
         	System.setProperty("http.proxyPort", "" + proxyPort);
-	        con = (HttpURLConnection) new URL(protocol + "://" + url).openConnection(pr);
+	        con = (HttpURLConnection) new URL((url.contains("http") ? url : protocol + "://" + url)).openConnection(pr);
 	        con.setConnectTimeout(30 * 1000);
 	        con.setReadTimeout(30 * 1000);
 	        con.connect();
@@ -461,9 +454,18 @@ public class Request {
 	    	{
 	        	httpPost.setConfig(config);
 	    	}
+	        
+	        if (httpEntity != null)
+	        {
+	        	httpPost.setEntity(httpEntity);
+	        }
+	        else
+	        {
+	        	httpPost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
+	        }
 	        try {
-				httpPost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 				response = httpclient.execute(httpPost, context);
+				this.HttpResponse = response;
 				content = EntityUtils.toString(response.getEntity(), "UTF-8");
 				this.cookieStore = context.getCookieStore();
             	this.statusCode = response.getStatusLine().getStatusCode();
@@ -496,7 +498,8 @@ public class Request {
             		httpclient.close();
             	} catch (IOException e) {}
         }
-		return true;
+		httpEntity = null;
+		return this.success;
 	}
 	
 	
@@ -506,6 +509,7 @@ public class Request {
 		CloseableHttpResponse response = null;
 		try {
 			httpclient = getClient();
+			
 			HttpGet httpGet = new HttpGet(url);
 			
 			HttpHost proxy = null;
@@ -525,6 +529,7 @@ public class Request {
 	    	}
 	        try {
 				response = httpclient.execute(httpGet, context);
+				this.HttpResponse = response;
 				content = EntityUtils.toString(response.getEntity(), "UTF-8");
 				this.cookieStore = context.getCookieStore();
             	this.statusCode = response.getStatusLine().getStatusCode();
@@ -563,6 +568,8 @@ public class Request {
 	public void execute()
 	{
 		generateheader();
+		if (!url.contains("http"))
+			url = protocol + "://" + url;
 		if (POST)
 		{
 			sendPost();
@@ -580,29 +587,11 @@ public class Request {
 		host = host.replace("https://", "").replace("http://", "");
 		if (!host.substring(4).equalsIgnoreCase("www."))
 		{
-			host = "www." + url;
+			host = "www." + host;
 		}
 		header.put("Host", host);
 		if (referer != null)
 			header.put("Referer", referer);
 		referer = host;
-	}
-	
-	private String trimStringByString(String text, String trimBy)
-	{
-	    int beginIndex = 0;
-	    int endIndex = text.length();
-
-	    while (text.substring(beginIndex, endIndex).startsWith(trimBy))
-	    {
-	        beginIndex += trimBy.length();
-	    } 
-
-	    while (text.substring(beginIndex, endIndex).endsWith(trimBy))
-	    {
-	        endIndex -= trimBy.length();
-	    }
-
-	    return text.substring(beginIndex, endIndex);
 	}
 }

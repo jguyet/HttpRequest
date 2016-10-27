@@ -20,9 +20,11 @@ public class Main {
 		header.put("Accept", "text/css,*/*;q=0.1");
 		Request r = new Request();
 		
-		r.setUrl("https://login.salesforce.com/services/oauth2/token")
-			//.setProxy("46.105.214.133", 3128)
+		r.setUrl("http://www.mon-ip.com/")
+			.setProxy("5.196.44.136", 3128)
+			.setGET()
 			.execute();
+		
 		
 		if (r.isSuccess())
 		{
