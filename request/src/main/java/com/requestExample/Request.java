@@ -1,7 +1,6 @@
 package com.requestExample;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
@@ -12,7 +11,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.net.ssl.SSLException;
 
@@ -20,7 +18,6 @@ import java.util.TreeMap;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -477,7 +474,6 @@ public class Request {
 				this.cookieStore = context.getCookieStore();
             	this.statusCode = response.getStatusLine().getStatusCode();
     			this.success = true;
-    			System.out.println(content);
 			}
 	        catch (ClientProtocolException e)
 	        {
