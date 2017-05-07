@@ -32,7 +32,7 @@ These run with a model which looks like that:
 			}
 			else
 			{
-				System.out.println("Proxy [" + this.ip + "] Test OK");
+				System.out.println("Test Echec");
 				
 				r.getErrorCode();//return Codes Of Exceptions Request (timeout/ssl etc)
 			}
