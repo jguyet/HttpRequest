@@ -35,13 +35,19 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.protocol.HttpClientContext;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.CoreConnectionPNames;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -84,15 +90,31 @@ public class Request {
 	private boolean				success = false;
 	private int					statusCode = 0;
 	
+	private int					timeout = 60000;
+	
 	private String				referer = null;
 	
 	private HttpURLConnection	con = null;
 	private HttpClientContext	context = null;
+	
+	private static final boolean DEBUG 					= false;
+	
+	private static final int	NO_ERROR				= 0;
+	private static final int	UNKNOW_ERROR			= 1;
+	private static final int	ERROR_CLIENT_PROTOCOL 	= 2;
+	private static final int	ERROR_SSL				= 3;
+	private static final int	ERROR_RESPONSE_TIME_OUT	= 4;
+	private static final int	ERROR_SOCKET_TIME_OUT	= 5;
+	private static final int	ERROR_CONNECTION_TIME_OUT = 4;
+	
+	private int					errorCode = NO_ERROR;
+	
 	/**
 	 * Constructor
 	 */
 	public Request()
 	{
+		Logger.getLogger(org.apache.http.client.protocol.ResponseProcessCookies.class).setLevel(Level.OFF);
 		Logger.getLogger(org.apache.http.impl.execchain.RetryExec.class).setLevel(Level.OFF);
 	}
 	
@@ -280,6 +302,11 @@ public class Request {
 		return (this);
 	}
 	
+	public String getUrl()
+	{
+		return (this.url);
+	}
+	
 	/**
 	 * replace params into your POST
 	 * @param params
@@ -346,6 +373,44 @@ public class Request {
 	}
 	
 	/**
+	 * if have error return Code Request error
+	 * @return
+	 */
+	public int getErrorCode()
+	{
+		return (this.errorCode);
+	}
+	
+	/**
+	 * Set TimeOut (default : 60000millis)
+	 * @param millis
+	 */
+	public void setTimeOut(int millis)
+	{
+		this.timeout = millis;
+	}
+	
+	/**
+	 * Return timeOut on millisecondes
+	 * @return
+	 */
+	public int getTimeOut()
+	{
+		return (this.timeout);
+	}
+	
+	public void setDefaultHeader()
+	{
+		Map<String, String> header = new TreeMap<String, String>();
+		
+		header.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36");
+		header.put("Accept-Language", "fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4");
+		header.put("Accept-Encoding", "gzip, deflate, sdch");
+		header.put("Accept", "text/css,*/*;q=0.1");
+		this.setHeader(header);
+	}
+	
+	/**
 	 * return content after execute
 	 * @return
 	 */
@@ -370,7 +435,8 @@ public class Request {
 				&& getStatusCode() != HttpStatus.SC_ACCEPTED
 				&& getStatusCode() != HttpStatus.SC_CREATED
 				&& getStatusCode() != HttpStatus.SC_RESET_CONTENT
-				&& getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT)
+				&& getStatusCode() != HttpStatus.SC_PARTIAL_CONTENT
+				&& getStatusCode() != HttpStatus.SC_MOVED_TEMPORARILY)
 			return false;
 		return true;
 	}
@@ -387,8 +453,8 @@ public class Request {
 	        System.setProperty("http.proxyHost", proxyIP);
         	System.setProperty("http.proxyPort", "" + proxyPort);
 	        con = (HttpURLConnection) new URL((url.contains("http") ? url : protocol + "://" + url)).openConnection(pr);
-	        con.setConnectTimeout(30 * 1000);
-	        con.setReadTimeout(30 * 1000);
+	        con.setConnectTimeout(2000);
+	        con.setReadTimeout(2000);
 	        con.connect();
 	        if (con.usingProxy())
 	        {
@@ -413,7 +479,13 @@ public class Request {
 	private CloseableHttpClient getClient()
 	{
 		//cookies
-		RequestConfig globalConfig = RequestConfig.custom().setCookieSpec(CookieSpecs.BEST_MATCH).build();
+		@SuppressWarnings("deprecation")
+		RequestConfig globalConfig = RequestConfig.custom()
+		.setConnectTimeout(this.timeout)
+		.setConnectionRequestTimeout(this.timeout)
+		.setSocketTimeout(this.timeout)
+		.setCookieSpec(CookieSpecs.BEST_MATCH)
+		.build();
 	    context = HttpClientContext.create();
 	    context.setCookieStore(cookieStore);
 	    //credentials
@@ -426,7 +498,8 @@ public class Request {
 		    credsProvider.setCredentials(authScope, credentials);
 	    }
 		HttpClientBuilder builder = HttpClients.custom();
-	    builder.setDefaultRequestConfig(globalConfig);
+		
+		builder.setDefaultRequestConfig(globalConfig);
 	    builder.setDefaultCookieStore(cookieStore);
 	    if (credsProvider != null)
 	    	builder.setDefaultCredentialsProvider(credsProvider);
@@ -450,6 +523,9 @@ public class Request {
 	        {
 	            proxy = new HttpHost(proxyIP, proxyPort, proxyProtocol);
 	            config = RequestConfig.custom()
+	            		.setSocketTimeout(this.timeout)
+	                    .setConnectTimeout(this.timeout)
+	                    .setConnectionRequestTimeout(this.timeout)
 	                    .setProxy(proxy)
 	                    .build();
 	        }
@@ -473,6 +549,11 @@ public class Request {
 				content = EntityUtils.toString(response.getEntity(), "UTF-8");
 				this.cookieStore = context.getCookieStore();
             	this.statusCode = response.getStatusLine().getStatusCode();
+            	if (response.getHeaders("Location").length >= 1)
+            	{
+            		String redirection = response.getHeaders("Location")[0].getValue();
+            		this.setUrl(redirection);
+            	}
     			this.success = true;
 			}
 	        catch (ClientProtocolException e)
@@ -483,20 +564,34 @@ public class Request {
 	        		return sendPost();
 	        	}
 	        	this.success = false;
+	        	this.errorCode = ERROR_CLIENT_PROTOCOL;
 	        }
 	        catch (SSLException e)
 	        {
 	        	this.success = false;
+	        	this.errorCode = ERROR_SSL;
+	        	if (DEBUG)
 	        	System.out.println("SSL Unrecognized");
+	        }
+	        catch (ConnectTimeoutException e)
+	        {
+	        	this.success = false;
+	        	this.errorCode = ERROR_CONNECTION_TIME_OUT;
+	        	if (DEBUG)
+	        	System.out.println("Http Connection Timeout");
 	        }
 	        catch (NoHttpResponseException e)
 	        {
 	        	this.success = false;
+	        	this.errorCode = ERROR_RESPONSE_TIME_OUT;
+	        	if (DEBUG)
 	        	System.out.println("Http Response Timeout");
 	        }
 	        catch (SocketTimeoutException e)
 	        {
 	        	this.success = false;
+	        	this.errorCode = ERROR_SOCKET_TIME_OUT;
+	        	if (DEBUG)
 	        	System.out.println("Connection Timeout");
 	        }
 	        catch (SocketException e)
@@ -550,6 +645,9 @@ public class Request {
 	        {
 	            proxy = new HttpHost(proxyIP, proxyPort, proxyProtocol);
 	            config = RequestConfig.custom()
+	            		.setSocketTimeout(this.timeout)
+	                    .setConnectTimeout(this.timeout)
+	                    .setConnectionRequestTimeout(this.timeout)
 	                    .setProxy(proxy)
 	                    .build();
 	        }
@@ -574,20 +672,34 @@ public class Request {
 	        		return sendGet();
 	        	}
 	        	this.success = false;
+	        	this.errorCode = ERROR_CLIENT_PROTOCOL;
 	        }
 	        catch (SSLException e)
 	        {
 	        	this.success = false;
+	        	this.errorCode = ERROR_SSL;
+	        	if (DEBUG)
 	        	System.out.println("SSL Unrecognized");
+	        }
+	        catch (ConnectTimeoutException e)
+	        {
+	        	this.success = false;
+	        	this.errorCode = ERROR_CONNECTION_TIME_OUT;
+	        	if (DEBUG)
+	        	System.out.println("Http Connection Timeout");
 	        }
 	        catch (NoHttpResponseException e)
 	        {
 	        	this.success = false;
+	        	this.errorCode = ERROR_RESPONSE_TIME_OUT;
+	        	if (DEBUG)
 	        	System.out.println("Http Response Timeout");
 	        }
 	        catch (SocketTimeoutException e)
 	        {
 	        	this.success = false;
+	        	this.errorCode = ERROR_SOCKET_TIME_OUT;
+	        	if (DEBUG)
 	        	System.out.println("Connection Timeout");
 	        }
 	        catch (SocketException e)
@@ -627,6 +739,8 @@ public class Request {
 	 */
 	public void execute()
 	{
+		this.errorCode = NO_ERROR;
+		this.success = true;
 		generateheader();
 		if (!url.contains("http"))
 			url = protocol + "://" + url;
