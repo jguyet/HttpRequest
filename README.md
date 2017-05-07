@@ -34,6 +34,8 @@ These run with a model which looks like that:
 			{
 				System.out.println("Test Echec");
 				
+				r.getStatusCode();//return Status code of the response
+				
 				r.getErrorCode();//return Codes Of Exceptions Request (timeout/ssl etc)
 			}
         }
