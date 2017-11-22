@@ -4,9 +4,9 @@ HttpRequest
 ### What is it ?
 A class to make simple Http requests is fast encoded
 
-Look also that example: [click here](https://github.com/gygy19/HttpRequest/blob/master/request/src/main/java/com/requestExample/Main.java)
+Look also that example: [click here](https://github.com/jguyet/HttpRequest/blob/master/request/src/main/java/com/http/Main.java)
 
-Look also Test unitari: [click here](https://github.com/gygy19/HttpRequest/blob/master/request/src/test/java/com/requestExample/TestRequest.java)
+Look also Test unitari: [click here](https://github.com/jguyet/HttpRequest/blob/master/request/src/test/java/com/http/TestRequest.java)
 
 These run with a model which looks like that:
 
