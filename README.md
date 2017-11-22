@@ -43,5 +43,5 @@ These run with a model which looks like that:
         }
     }
 
-### Main Authors ?
-Gygy19
+### Author
+jguyet
