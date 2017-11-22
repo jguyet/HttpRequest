@@ -1,11 +1,13 @@
-package com.requestExample;
+package com.http;
 
+
+import com.http.Request;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-public class TestRequest extends TestCase implements TestRequestCase{
+class TestRequest extends TestCase implements TestRequestCase{
 
 	public TestRequest(String name)
 	{
@@ -39,7 +41,7 @@ public class TestRequest extends TestCase implements TestRequestCase{
 		//lancement d'une get
 		r.execute();
 		
-		//si echoué
+		//si echouï¿½
 		if (!r.isSuccess())
 		{
 			assertTrue(false);

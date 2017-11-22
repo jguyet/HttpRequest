@@ -1,4 +1,4 @@
-package com.requestExample;
+package com.http;
 
 import java.util.Map;
 import java.util.TreeMap;
@@ -6,7 +6,7 @@ import java.util.TreeMap;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-public class Main {
+class Main {
 
 	public static void main(String[] args)
 	{
@@ -21,7 +21,7 @@ public class Main {
 		Request r = new Request();
 		
 		r.setUrl("http://www.mon-ip.com/")
-			.setProxy("5.196.44.136", 3128)
+			//.setProxy("5.196.44.136", 3128)
 			.setGET()
 			.execute();
 		

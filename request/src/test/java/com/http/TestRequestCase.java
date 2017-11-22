@@ -1,6 +1,6 @@
-package com.requestExample;
+package com.http;
 
-public interface TestRequestCase {
+interface TestRequestCase {
 		/**
 		 * Fonction of Test Started
 		 */

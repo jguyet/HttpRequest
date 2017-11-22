@@ -1,4 +1,4 @@
-package com.requestExample;
+package com.http;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;

@@ -1,29 +1,58 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!-- JGUYET MAVEN POM FILE --> 
+  
+  <!-- ########################################################################## -->
+  <!-- MAVEN PROJECT HDR -->
   <modelVersion>4.0.0</modelVersion>
   <groupId>request</groupId>
   <artifactId>request</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-   <properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.source.version>1.8</java.source.version>
-		<java.target.version>1.8</java.target.version>
-		<log4j.version>2.6.2</log4j.version>
-   </properties>
+  
+  <packaging>jar</packaging>
+  <!-- ########################################################################## -->
+  <!-- UTF-8 CONVERTION -->
+  <properties>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	<java.source.version>1.8</java.source.version>
+	<java.target.version>1.8</java.target.version>
+	<log4j.version>2.6.2</log4j.version>
+  </properties>
+  <!-- ########################################################################## -->
+  <!-- LIBRARIES DEPENDENCIES -->
   <dependencies>
-  		<dependency>
-			<groupId>org.apache.httpcomponents</groupId>
-			<artifactId>httpclient</artifactId>
-			<version>4.5.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-1.2-api</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
+	<dependency>
+		<groupId>org.apache.httpcomponents</groupId>
+		<artifactId>httpclient</artifactId>
+		<version>4.5.2</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-slf4j-impl</artifactId>
+		<version>${log4j.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.logging.log4j</groupId>
+		<artifactId>log4j-1.2-api</artifactId>
+		<version>${log4j.version}</version>
+	</dependency>
   </dependencies>
+  <!-- END LIBRARIES DEPENDENCIES -->
+  <!-- ########################################################################## -->
+  <build>
+	  <plugins>
+	  	  <!-- ###################################################################### -->
+	      <!-- START PLUGIN COMPILER -->
+	      <plugin>
+	        <artifactId>maven-compiler-plugin</artifactId>
+	        <version>3.5.1</version>
+	        <configuration>
+	          <!-- JAVA COMPILANCE VERSION -->
+	          <source>1.8</source>
+	          <target>1.8</target>
+	        </configuration>
+	      </plugin>
+	      <!-- END PLUGIN COMPILER -->
+	      <!-- ###################################################################### -->
+	  </plugins>
+  </build>
 </project>
