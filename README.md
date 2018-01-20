@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.org/jguyet/HttpRequest.svg?branch=master)](https://travis-ci.org/jguyet/HttpRequest)  
 HttpRequest
 ==========
+[![Build Status](https://travis-ci.org/jguyet/HttpRequest.svg?branch=master)](https://travis-ci.org/jguyet/HttpRequest)  
+
 
 ### What is it ?
 A class to make simple Http requests is fast encoded
