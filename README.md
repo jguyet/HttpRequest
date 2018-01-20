@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/jguyet/HttpRequest.svg?branch=master)](https://travis-ci.org/jguyet/HttpRequest)  
 HttpRequest
 ==========
 
