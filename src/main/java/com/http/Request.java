@@ -461,6 +461,10 @@ public class Request {
 	        	return (true);
 	        }
         }
+		catch (SocketTimeoutException e)//Time out
+		{
+			return (false);
+		}
 		catch (Exception e)
 		{
 			e.printStackTrace();

@@ -1,21 +1,19 @@
 <project>
 
     <target name="clean">
-        <delete dir="build"/>
+        <delete dir="ant"/>
     </target>
 
     <target name="compile">
-        <mkdir dir="build/classes"/>
-        <javac srcdir="src" destdir="build/classes"/>
+        <mkdir dir="ant/build/classes"/>
+    	<!--TODO-->
     </target>
 
     <target name="jar">
-        <mkdir dir="build/jar"/>
-		<mkdir dir="build/classes"/>
-        <jar destfile="build/jar/http-request.jar" basedir="build/classes">
-            <manifest>
-                <attribute name="Main-Class" value="com.http.Main"/>
-            </manifest>
+        <mkdir dir="ant/build/jar"/>
+		<mkdir dir="ant/build/classes"/>
+        <jar destfile="ant/build/jar/Request-1.0.jar" basedir="build/classes">
+        	<!--TODO manifest-->
         </jar>
     </target>
 
@@ -23,7 +21,8 @@
     </target>
 
     <target name="run">
-        <!--<java jar="build/jar/http-request.jar" fork="true"/>-->
+    	<!--TODO-->
+        <!--<java jar="ant/build/jar/http-request.jar" fork="true"/>-->
     </target>
 
 </project>
