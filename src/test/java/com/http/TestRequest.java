@@ -14,7 +14,7 @@ public class TestRequest {
  		
  		r.setGET().setUrl("http://www.google.com").setProtocolHttp().setDefaultHeader();
  		r.execute();
- 		assertEquals(200, r.getStatusCode());
+ 		assertEquals(302, r.getStatusCode());
  	}
 	
 	@Test
