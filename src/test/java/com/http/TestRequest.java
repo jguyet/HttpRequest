@@ -12,9 +12,9 @@ public class TestRequest {
  		System.out.println("-------- testStatusOK");
  		Request r = new Request();
  		
- 		r.setGET().setUrl("http://www.google.com").setProtocolHttp().setDefaultHeader();
+ 		r.setGET().setUrl("https://www.google.com").setProtocolHttps().setDefaultHeader();
  		r.execute();
- 		assertEquals(302, r.getStatusCode());
+ 		assertEquals(200, r.getStatusCode());
  	}
 	
 	@Test

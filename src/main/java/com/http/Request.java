@@ -45,7 +45,6 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Level;
 
 
 /**
@@ -111,8 +110,9 @@ public class Request {
 	 * Constructor
 	 */
 	public Request() {
-		org.apache.log4j.Logger.getLogger(org.apache.http.client.protocol.ResponseProcessCookies.class).setLevel(Level.OFF);
-		org.apache.log4j.Logger.getLogger(org.apache.http.impl.execchain.RetryExec.class).setLevel(Level.OFF);
+		//TODO remove this
+		//org.apache.log4j.Logger.getLogger(org.apache.http.client.protocol.ResponseProcessCookies.class).setLevel(Level.OFF);
+		//org.apache.log4j.Logger.getLogger(org.apache.http.impl.execchain.RetryExec.class).setLevel(Level.OFF);
 	}
 	
 	/**
