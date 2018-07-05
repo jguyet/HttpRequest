@@ -448,14 +448,15 @@ public class Request {
 	        	return (true);
 	        }
         }
+		catch(SocketTimeoutException e) {
+			return (false);
+		}
 		catch (Exception e) {
 			e.printStackTrace();
 			return (false);
 		}
 		finally {
-			if (con == null)
-				return (false);
-			if (con.usingProxy())
+			if (con != null && con.usingProxy())
 				con.disconnect();
 		}
 		return (false);
