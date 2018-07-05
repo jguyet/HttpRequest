@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.net.ssl.SSLException;
 
@@ -40,90 +41,85 @@ import org.apache.http.cookie.Cookie;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreConnectionPNames;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 
 /**
- * @author jguyet
- * 
- * default :
- * 
- * protocol : http
- * proxy : false
- * method : GET
- * 
- * proxy default :
- * 
- * port : 222
- * IP : 127.0.0.1
+ * Description : Browser simulation <br>
+ * @author jguyet<br>
+ * <br>
+ * default :<br>
+ * <br>
+ * protocol : http<br>
+ * proxy : false<br>
+ * method : GET<br>
+ * <br>
+ * proxy default :<br>
+ * <br>
+ * port : 222<br>
+ * IP : 127.0.0.1<br>
  * protocol : http
  */
 public class Request {
 	
-	private String				url = "";
-	private String				protocol = "http";
-	private boolean				useProxy = false;
-	private String				proxyIP = "127.0.0.1";
-	private int					proxyPort = 222;
-	private String				proxyProtocol = "http";
-	private String				proxyUsername = null;
-	private String				proxyPassword = "";
-	private Map<String, String> header = new TreeMap<String, String>();
-	private CookieStore 		cookieStore = new BasicCookieStore();
-	private boolean				GET = true;
-	private boolean				POST = false;
-	List<NameValuePair>			params = new ArrayList<NameValuePair>();
-	private HttpEntity			httpEntity = null;
+	//private static final Logger	LOGGER = LoggerFactory.getLogger(Request.class);
 	
-	private String 				content = null;
-	private HttpResponse		HttpResponse = null;
-	private boolean				success = false;
-	private int					statusCode = 0;
+	/**
+	 * Internal Errors
+	 */
+	private static final int	NO_ERROR					= 0;
+	private static final int	ERROR_UNDEFIEND				= 1;
+	private static final int	ERROR_CLIENT_PROTOCOL 		= 2;
+	private static final int	ERROR_SSL					= 3;
+	private static final int	ERROR_RESPONSE_TIME_OUT		= 4;
+	private static final int	ERROR_SOCKET_TIME_OUT		= 5;
+	private static final int	ERROR_CONNECTION_TIME_OUT	= 4;
 	
-	private int					timeout = 60000;
+	private String				url							= "";
+	private String				protocol					= "http";
+	private boolean				useProxy					= false;
+	private String				proxyIP						= "127.0.0.1";
+	private int					proxyPort					= 222;
+	private String				proxyProtocol				= "http";
+	private String				proxyUsername				= null;
+	private String				proxyPassword				= "";
+	private Map<String, String> header						= new TreeMap<String, String>();
+	private CookieStore 		cookieStore					= new BasicCookieStore();
+	private boolean				GET							= true;
+	private boolean				POST						= false;
+	List<NameValuePair>			params						= new ArrayList<NameValuePair>();
+	private HttpEntity			httpEntity					= null;
 	
-	private String				referer = null;
+	private String 				content						= null;
+	private HttpResponse		HttpResponse				= null;
+	private int					statusCode					= 0;
 	
-	private HttpURLConnection	con = null;
-	private HttpClientContext	context = null;
+	private int					timeout						= 60000;
 	
-	private static final boolean DEBUG 					= false;
+	private String				referer						= null;
 	
-	private static final int	NO_ERROR				= 0;
-	private static final int	UNKNOW_ERROR			= 1;
-	private static final int	ERROR_CLIENT_PROTOCOL 	= 2;
-	private static final int	ERROR_SSL				= 3;
-	private static final int	ERROR_RESPONSE_TIME_OUT	= 4;
-	private static final int	ERROR_SOCKET_TIME_OUT	= 5;
-	private static final int	ERROR_CONNECTION_TIME_OUT = 4;
+	private HttpURLConnection	con							= null;
+	private HttpClientContext	context						= null;
 	
-	private int					errorCode = NO_ERROR;
+	private int					internalErrorCode			= Request.NO_ERROR;
 	
 	/**
 	 * Constructor
 	 */
-	public Request()
-	{
-		Logger.getLogger(org.apache.http.client.protocol.ResponseProcessCookies.class).setLevel(Level.OFF);
-		Logger.getLogger(org.apache.http.impl.execchain.RetryExec.class).setLevel(Level.OFF);
+	public Request() {
+		org.apache.log4j.Logger.getLogger(org.apache.http.client.protocol.ResponseProcessCookies.class).setLevel(Level.OFF);
+		org.apache.log4j.Logger.getLogger(org.apache.http.impl.execchain.RetryExec.class).setLevel(Level.OFF);
 	}
 	
 	/**
 	 * Method execute set POST
 	 * @return
 	 */
-	public Request setPost()
-	{
+	public Request setPost() {
 		if (GET)
 			GET = false;
 		POST = true;
@@ -134,8 +130,7 @@ public class Request {
 	 * Method execute set GET (default)
 	 * @return
 	 */
-	public Request setGET()
-	{
+	public Request setGET() {
 		if (POST)
 			POST = false;
 		GET = true;
@@ -150,8 +145,7 @@ public class Request {
 	 * @param password
 	 * @return
 	 */
-	public Request setProxy(String ip, int port, String username, String password)
-	{
+	public Request setProxy(String ip, int port, String username, String password) {
 		this.proxyIP = ip;
 		this.proxyPort = port;
 		this.proxyUsername = username;
@@ -166,8 +160,7 @@ public class Request {
 	 * @param port
 	 * @return
 	 */
-	public Request setProxy(String ip, int port)
-	{
+	public Request setProxy(String ip, int port) {
 		this.proxyIP = ip;
 		this.proxyPort = port;
 		this.useProxy = true;
@@ -178,8 +171,7 @@ public class Request {
 	 * change protocol connection proxy https
 	 * @return
 	 */
-	public Request setProxyHttps()
-	{
+	public Request setProxyHttps() {
 		this.proxyProtocol = "https";
 		return (this);
 	}
@@ -188,8 +180,7 @@ public class Request {
 	 * change protocol connection proxy http (default)
 	 * @return
 	 */
-	public Request setProxyHttp()
-	{
+	public Request setProxyHttp() {
 		this.proxyProtocol = "http";
 		return (this);
 	}
@@ -199,24 +190,40 @@ public class Request {
 	 * @param h
 	 * @return
 	 */
-	public Request setHeader(Map<String, String> h)
-	{
+	public Request setHeader(Map<String, String> h) {
 		if (h.containsKey("Referer"))
 			referer = null;
 		this.header = h;
 		return (this);
 	}
+	
 	/**
 	 * Add key and value into the header
 	 * @param key
 	 * @param value
 	 * @return
 	 */
-	public Request addHeader(String key, String value)
-	{
+	public Request addHeader(String key, String value) {
 		if (key.equalsIgnoreCase("Referer"))
 			referer = null;
+		if (this.header.containsKey(key))
+			this.header.remove(key);
 		this.header.put(key, value);
+		return (this);
+	}
+	
+	public Map<String, String> getHeader() {
+		return this.header;
+	}
+	
+	/**
+	 * remove key and value into the header
+	 * @param key
+	 * @return
+	 */
+	public Request removeHeader(String key) {
+		if (this.header.containsKey(key))
+			this.header.remove(key);
 		return (this);
 	}
 	
@@ -224,8 +231,7 @@ public class Request {
 	 * clean current header
 	 * @return
 	 */
-	public Request clearHeader()
-	{
+	public Request clearHeader() {
 		this.header.clear();
 		return (this);
 	}
@@ -234,8 +240,7 @@ public class Request {
 	 * get all cookies
 	 * @return
 	 */
-	public CookieStore getCookieStore()
-	{
+	public CookieStore getCookieStore() {
 		return (cookieStore);
 	}
 	
@@ -244,8 +249,7 @@ public class Request {
 	 * @param cook
 	 * @return
 	 */
-	public Request setCookieStore(CookieStore cook)
-	{
+	public Request setCookieStore(CookieStore cook) {
 		this.cookieStore = cook;
 		return (this);
 	}
@@ -255,8 +259,7 @@ public class Request {
 	 * @param cook
 	 * @return
 	 */
-	public Request addCookie(Cookie cook)
-	{
+	public Request addCookie(Cookie cook) {
 		this.cookieStore.addCookie(cook);
 		return (this);
 	}
@@ -265,8 +268,7 @@ public class Request {
 	 * clean cookieStore
 	 * @return
 	 */
-	public Request clearCookie()
-	{
+	public Request clearCookie() {
 		this.cookieStore.clear();
 		return (this);
 	}
@@ -275,8 +277,7 @@ public class Request {
 	 * set protocol http (default)
 	 * @return
 	 */
-	public Request setProtocolHttp()
-	{
+	public Request setProtocolHttp() {
 		this.protocol = "http";
 		return (this);
 	}
@@ -285,8 +286,7 @@ public class Request {
 	 * set protocol https (default)
 	 * @return
 	 */
-	public Request setProtocolHttps()
-	{
+	public Request setProtocolHttps() {
 		this.protocol = "https";
 		return (this);
 	}
@@ -296,15 +296,21 @@ public class Request {
 	 * @param url
 	 * @return
 	 */
-	public Request setUrl(String url)
-	{
+	public Request setUrl(String url) {
 		this.url = url;
 		return (this);
 	}
 	
-	public String getUrl()
-	{
+	public String getUrl() {
 		return (this.url);
+	}
+	
+	public String getReferer() {
+		return (this.referer);
+	}
+	
+	public void setReferer(String url) {
+		this.referer = url;
 	}
 	
 	/**
@@ -312,8 +318,7 @@ public class Request {
 	 * @param params
 	 * @return
 	 */
-	public Request setParams(List<NameValuePair> params)
-	{
+	public Request setParams(List<NameValuePair> params) {
 		this.params = params;
 		return (this);
 	}
@@ -323,8 +328,7 @@ public class Request {
 	 * @param params
 	 * @return
 	 */
-	public Request addParam(String key, String value)
-	{
+	public Request addParam(String key, String value) {
 		params.add(new BasicNameValuePair(key, value));
 		return (this);
 	}
@@ -333,14 +337,12 @@ public class Request {
 	 * clean all params of your POST
 	 * @return
 	 */
-	public Request clearParam()
-	{
+	public Request clearParam() {
 		params.clear();
 		return (this);
 	}
 	
-	public Request setHttpEntity(HttpEntity e)
-	{
+	public Request setHttpEntity(HttpEntity e) {
 		httpEntity = e;
 		return (this);
 	}
@@ -349,8 +351,7 @@ public class Request {
 	 * return if use proxy
 	 * @return
 	 */
-	public boolean useProxi()
-	{
+	public boolean useProxi() {
 		return (this.useProxy);
 	}
 	
@@ -358,35 +359,23 @@ public class Request {
 	 * return statut code after execute (base 0)
 	 * @return
 	 */
-	public int getStatusCode()
-	{
+	public int getStatusCode() {
 		return (this.statusCode);
 	}
 	
 	/**
-	 * if have error on execute !success
+	 * return internal error code
 	 * @return
 	 */
-	public boolean isStoppedByError()
-	{
-		return (!success);
-	}
-	
-	/**
-	 * if have error return Code Request error
-	 * @return
-	 */
-	public int getErrorCode()
-	{
-		return (this.errorCode);
+	public int getInternalError() {
+		return (this.internalErrorCode);
 	}
 	
 	/**
 	 * Set TimeOut (default : 60000millis)
 	 * @param millis
 	 */
-	public void setTimeOut(int millis)
-	{
+	public void setTimeOut(int millis) {
 		this.timeout = millis;
 	}
 	
@@ -394,19 +383,18 @@ public class Request {
 	 * Return timeOut on millisecondes
 	 * @return
 	 */
-	public int getTimeOut()
-	{
+	public int getTimeOut() {
 		return (this.timeout);
 	}
 	
-	public void setDefaultHeader()
-	{
+	public void setDefaultHeader() {
 		Map<String, String> header = new TreeMap<String, String>();
-		
-		header.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36");
-		header.put("Accept-Language", "fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4");
-		header.put("Accept-Encoding", "gzip, deflate, sdch");
-		header.put("Accept", "text/css,*/*;q=0.1");
+
+		header.put("User-Agent", "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36");
+		header.put("Accept-Language", "fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3");
+		header.put("Accept-Encoding", "gzip, deflate, br");
+		header.put("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
+		header.put("Connection", "Keep-Alive");
 		this.setHeader(header);
 	}
 	
@@ -414,23 +402,24 @@ public class Request {
 	 * return content after execute
 	 * @return
 	 */
-	public String getContent()
-	{
+	public String getContent() {
 		return (this.content);
 	}
 	
-	public HttpResponse getHttpReponse()
-	{
+	public HttpResponse getHttpReponse() {
 		return (this.HttpResponse);
+	}
+	
+	public boolean isInternalError() {
+		return (internalErrorCode != Request.NO_ERROR);
 	}
 	
 	/**
 	 * check statusCode and if error detected
 	 * @return
 	 */
-	public boolean isSuccess()
-	{
-		if (isStoppedByError()
+	public boolean isSuccess() {
+		if (internalErrorCode != Request.NO_ERROR
 				|| getStatusCode() != HttpStatus.SC_OK
 				&& getStatusCode() != HttpStatus.SC_ACCEPTED
 				&& getStatusCode() != HttpStatus.SC_CREATED
@@ -445,8 +434,7 @@ public class Request {
 	 * Test proxy return false if connection is null
 	 * @return
 	 */
-	public boolean isValideProxy()
-	{
+	public boolean isValideProxy() {
 		try {
 			SocketAddress proxyAddr = new InetSocketAddress(proxyIP, proxyPort);
 	        Proxy pr = new Proxy(Proxy.Type.HTTP, proxyAddr);
@@ -456,22 +444,15 @@ public class Request {
 	        con.setConnectTimeout(2000);
 	        con.setReadTimeout(2000);
 	        con.connect();
-	        if (con.usingProxy())
-	        {
+	        if (con.usingProxy()) {
 	        	return (true);
 	        }
         }
-		catch (SocketTimeoutException e)//Time out
-		{
-			return (false);
-		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			e.printStackTrace();
 			return (false);
 		}
-		finally
-		{
+		finally {
 			if (con == null)
 				return (false);
 			if (con.usingProxy())
@@ -480,22 +461,18 @@ public class Request {
 		return (false);
 	}
 	
-	private CloseableHttpClient getClient()
-	{
-		//cookies
-		@SuppressWarnings("deprecation")
+	private CloseableHttpClient getClient() {
 		RequestConfig globalConfig = RequestConfig.custom()
 		.setConnectTimeout(this.timeout)
 		.setConnectionRequestTimeout(this.timeout)
 		.setSocketTimeout(this.timeout)
-		.setCookieSpec(CookieSpecs.BEST_MATCH)
+		.setCookieSpec(CookieSpecs.DEFAULT)
+		.setRedirectsEnabled(false)
 		.build();
 	    context = HttpClientContext.create();
-	    context.setCookieStore(cookieStore);
 	    //credentials
 	    CredentialsProvider credsProvider = null;
-	    if (proxyUsername != null)
-	    {
+	    if (proxyUsername != null) {
 		    Credentials credentials = new UsernamePasswordCredentials(proxyUsername,proxyPassword);
 		    AuthScope authScope = new AuthScope(proxyIP, proxyPort);
 		    credsProvider = new BasicCredentialsProvider();
@@ -522,9 +499,12 @@ public class Request {
 
 			HttpHost proxy = null;
 	        RequestConfig config = null;
+	        
+	        for (Entry<String, String> entity : this.header.entrySet()) {
+	        	httpPost.setHeader(entity.getKey(), entity.getValue());
+	        }
 	
-	        if (useProxy)
-	        {
+	        if (useProxy) {
 	            proxy = new HttpHost(proxyIP, proxyPort, proxyProtocol);
 	            config = RequestConfig.custom()
 	            		.setSocketTimeout(this.timeout)
@@ -534,102 +514,78 @@ public class Request {
 	                    .build();
 	        }
 	        
-	        if (config != null)
-	    	{
+	        if (config != null) {
 	        	httpPost.setConfig(config);
 	    	}
 	        
-	        if (httpEntity != null)
-	        {
+	        if (httpEntity != null) {
 	        	httpPost.setEntity(httpEntity);
 	        }
-	        else
-	        {
+	        else {
 	        	httpPost.setEntity(new UrlEncodedFormEntity(params, "UTF-8"));
 	        }
 	        try {
 				response = httpclient.execute(httpPost, context);
 				this.HttpResponse = response;
 				content = EntityUtils.toString(response.getEntity(), "UTF-8");
-				this.cookieStore = context.getCookieStore();
             	this.statusCode = response.getStatusLine().getStatusCode();
-            	if (response.getHeaders("Location").length >= 1)
-            	{
+            	if (response.getHeaders("Location").length >= 1) {
             		String redirection = response.getHeaders("Location")[0].getValue();
             		this.setUrl(redirection);
             	}
-    			this.success = true;
 			}
-	        catch (ClientProtocolException e)
-	        {
-	        	if (this.proxyProtocol.equalsIgnoreCase("http"))
-	        	{
+	        catch (ClientProtocolException e)  {
+	        	if (this.proxyProtocol.equalsIgnoreCase("http")) {
 	        		this.setProxyHttps();
 	        		return sendPost();
 	        	}
-	        	this.success = false;
-	        	this.errorCode = ERROR_CLIENT_PROTOCOL;
+	        	
+	        	this.internalErrorCode = ERROR_CLIENT_PROTOCOL;
 	        }
-	        catch (SSLException e)
-	        {
-	        	this.success = false;
-	        	this.errorCode = ERROR_SSL;
-	        	if (DEBUG)
-	        	System.out.println("SSL Unrecognized");
+	        catch (SSLException e) {
+	        	this.internalErrorCode = ERROR_SSL;
+	        	//LOGGER.debug("SSL Unrecognized");
 	        }
-	        catch (ConnectTimeoutException e)
-	        {
-	        	this.success = false;
-	        	this.errorCode = ERROR_CONNECTION_TIME_OUT;
-	        	if (DEBUG)
-	        	System.out.println("Http Connection Timeout");
+	        catch (ConnectTimeoutException e) {
+	        	this.internalErrorCode = ERROR_CONNECTION_TIME_OUT;
+	        	//LOGGER.debug("Http Connection Timeout");
 	        }
-	        catch (NoHttpResponseException e)
-	        {
-	        	this.success = false;
-	        	this.errorCode = ERROR_RESPONSE_TIME_OUT;
-	        	if (DEBUG)
-	        	System.out.println("Http Response Timeout");
+	        catch (NoHttpResponseException e) {
+	        	this.internalErrorCode = ERROR_RESPONSE_TIME_OUT;
+	        	//LOGGER.debug("Http Response Timeout");
 	        }
-	        catch (SocketTimeoutException e)
-	        {
-	        	this.success = false;
-	        	this.errorCode = ERROR_SOCKET_TIME_OUT;
-	        	if (DEBUG)
-	        	System.out.println("Connection Timeout");
+	        catch (SocketTimeoutException e) {
+	        	this.internalErrorCode = ERROR_SOCKET_TIME_OUT;
+	        	//LOGGER.debug("Connection Timeout");
 	        }
-	        catch (SocketException e)
-	        {
-	        	this.success = false;
+	        catch (SocketException e) {
+	        	this.internalErrorCode = ERROR_UNDEFIEND;
 	        }
-	        catch (Exception e)
-	        {
+	        catch (Exception e) {
 	        	e.printStackTrace();
-	        	this.success = false;
+	        	this.internalErrorCode = ERROR_UNDEFIEND;
 	        }
-	        finally
-	        {
+	        finally {
 	            try {
 	            	if (response != null)
 	            		response.close();
-	            	} catch (IOException e) {}
+	            } catch (IOException e) {}
 	        }
 		}
-		catch (Exception e)
-		{
+		catch (Exception e) {
 			e.printStackTrace();
-			this.success = false;
+			this.internalErrorCode = ERROR_UNDEFIEND;
 			//logger.error("error in openSession",e);
 		}
-		finally
-		{
+		finally {
             try {
             	if (httpclient != null)
             		httpclient.close();
-            	} catch (IOException e) {}
+            } catch (IOException e) {}
         }
+		clearParam();
 		httpEntity = null;
-		return this.success;
+		return this.isInternalError();
 	}
 	
 	
@@ -644,9 +600,12 @@ public class Request {
 			
 			HttpHost proxy = null;
 	        RequestConfig config = null;
+	        
+	        for (Entry<String, String> entity : this.header.entrySet()) {
+	        	httpGet.setHeader(entity.getKey(), entity.getValue());
+	        }
 	
-	        if (useProxy)
-	        {
+	        if (useProxy) {
 	            proxy = new HttpHost(proxyIP, proxyPort, proxyProtocol);
 	            config = RequestConfig.custom()
 	            		.setSocketTimeout(this.timeout)
@@ -656,86 +615,66 @@ public class Request {
 	                    .build();
 	        }
 	        
-	        if (config != null)
-	    	{
+	        if (config != null) {
 	        	httpGet.setConfig(config);
 	    	}
 	        try {
 				response = httpclient.execute(httpGet, context);
 				this.HttpResponse = response;
 				content = EntityUtils.toString(response.getEntity(), "UTF-8");
-				this.cookieStore = context.getCookieStore();
+				if (response.getHeaders("Location").length >= 1) {
+            		String redirection = response.getHeaders("Location")[0].getValue();
+            		this.setUrl(redirection);
+            	}
             	this.statusCode = response.getStatusLine().getStatusCode();
-    			this.success = true;
 			}
-	        catch (ClientProtocolException e)
-	        {
-	        	if (this.proxyProtocol.equalsIgnoreCase("http"))
-	        	{
+	        catch (ClientProtocolException e) {
+	        	if (this.proxyProtocol.equalsIgnoreCase("http")) {
 	        		this.setProxyHttps();
 	        		return sendGet();
 	        	}
-	        	this.success = false;
-	        	this.errorCode = ERROR_CLIENT_PROTOCOL;
+	        	this.internalErrorCode = ERROR_CLIENT_PROTOCOL;
 	        }
-	        catch (SSLException e)
-	        {
-	        	this.success = false;
-	        	this.errorCode = ERROR_SSL;
-	        	if (DEBUG)
-	        	System.out.println("SSL Unrecognized");
+	        catch (SSLException e) {
+	        	this.internalErrorCode = ERROR_SSL;
+	        	//LOGGER.debug("SSL Unrecognized");
 	        }
-	        catch (ConnectTimeoutException e)
-	        {
-	        	this.success = false;
-	        	this.errorCode = ERROR_CONNECTION_TIME_OUT;
-	        	if (DEBUG)
-	        	System.out.println("Http Connection Timeout");
+	        catch (ConnectTimeoutException e) {
+	        	this.internalErrorCode = ERROR_CONNECTION_TIME_OUT;
+	        	//LOGGER.debug("Http Connection Timeout");
 	        }
-	        catch (NoHttpResponseException e)
-	        {
-	        	this.success = false;
-	        	this.errorCode = ERROR_RESPONSE_TIME_OUT;
-	        	if (DEBUG)
-	        	System.out.println("Http Response Timeout");
+	        catch (NoHttpResponseException e) {
+	        	this.internalErrorCode = ERROR_RESPONSE_TIME_OUT;
+	        	//LOGGER.debug("Http Response Timeout");
 	        }
-	        catch (SocketTimeoutException e)
-	        {
-	        	this.success = false;
-	        	this.errorCode = ERROR_SOCKET_TIME_OUT;
-	        	if (DEBUG)
-	        	System.out.println("Connection Timeout");
+	        catch (SocketTimeoutException e) {
+	        	this.internalErrorCode = ERROR_SOCKET_TIME_OUT;
+	        	//LOGGER.debug("Connection Timeout");
 	        }
-	        catch (SocketException e)
-	        {
-	        	this.success = false;
+	        catch (SocketException e) {
+	        	this.internalErrorCode = Request.ERROR_UNDEFIEND;
 	        }
-	        catch (Exception e)
-	        {
+	        catch (Exception e) {
 	        	e.printStackTrace();
-	        	this.success = false;
+	        	this.internalErrorCode = Request.ERROR_UNDEFIEND;
 	        }
-	        finally
-	        {
+	        finally {
 	            try {
 	            	if (response != null)
 	            		response.close();
-	            	} catch (IOException e) {}
+	            } catch (IOException e) {}
 	        }
 		}
-		
-		catch (Exception e)
-		{
-			this.success = false;
+		catch (Exception e) {
+			this.internalErrorCode = Request.ERROR_UNDEFIEND;
 		}
-		finally
-		{
+		finally {
             try {
             	if (httpclient != null)
             		httpclient.close();
-            	} catch (IOException e) {}
+            } catch (IOException e) {}
         }
-		return true;
+		return this.isInternalError();
 	}
 	
 	/**
@@ -743,17 +682,14 @@ public class Request {
 	 */
 	public void execute()
 	{
-		this.errorCode = NO_ERROR;
-		this.success = true;
+		this.internalErrorCode = Request.NO_ERROR;
 		generateheader();
 		if (!url.contains("http"))
 			url = protocol + "://" + url;
-		if (POST)
-		{
+		if (POST) {
 			sendPost();
 		}
-		else if (GET)
-		{
+		else if (GET) {
 			sendGet();
 		}
 	}
@@ -763,13 +699,11 @@ public class Request {
 		String host = url;
 		
 		host = host.replace("https://", "").replace("http://", "");
-		if (!host.substring(4).equalsIgnoreCase("www."))
-		{
-			host = "www." + host;
-		}
+		host = host.split("\\?")[0];
+		host = host.split("/")[0];
 		header.put("Host", host);
 		if (referer != null)
-			header.put("Referer", referer);
+			header.put("referer", referer);
 		referer = host;
 	}
 }
