@@ -16,16 +16,12 @@
 	<java.source.version>1.8</java.source.version>
 	<java.target.version>1.8</java.target.version>
 	<log4j.version>2.6.2</log4j.version>
+	<!-- Force version of JUnit because of issue with parent dependencies -->
+	<junit.version>4.12</junit.version>
   </properties>
   <!-- ########################################################################## -->
   <!-- LIBRARIES DEPENDENCIES -->
   <dependencies>
-  	<dependency>
-	    <groupId>junit</groupId>
-	    <artifactId>junit</artifactId>
-	    <version>4.12</version>
-	    <scope>test</scope>
-	</dependency>
 	<dependency>
 	    <groupId>org.junit.jupiter</groupId>
 	    <artifactId>junit-jupiter-api</artifactId>
@@ -37,16 +33,32 @@
 		<artifactId>httpclient</artifactId>
 		<version>4.5.2</version>
 	</dependency>
-	<!-- <dependency>
-		<groupId>org.apache.logging.log4j</groupId>
-		<artifactId>log4j-slf4j-impl</artifactId>
-		<version>${log4j.version}</version>
-	</dependency> -->
+	
+	<!-- LOGGING logback -->
 	<dependency>
-		<groupId>org.apache.logging.log4j</groupId>
-		<artifactId>log4j-1.2-api</artifactId>
-		<version>${log4j.version}</version>
+        <groupId>ch.qos.logback</groupId>
+        <artifactId>logback-classic</artifactId>
+        <version>1.1.11</version>
+    </dependency>
+    <dependency>
+	    <groupId>ch.qos.logback</groupId>
+	    <artifactId>logback-core</artifactId>
+	    <version>1.1.11</version>
 	</dependency>
+	<dependency>
+	    <groupId>org.slf4j</groupId>
+	    <artifactId>log4j-over-slf4j</artifactId>
+	    <version>1.7.25</version>
+	</dependency>
+	
+	<!-- Force version of JUnit because of issue with parent dependencies -->
+	<dependency>
+		<groupId>junit</groupId>
+		<artifactId>junit</artifactId>
+		<version>${junit.version}</version>
+		<scope>test</scope>
+	</dependency>
+	
   </dependencies>
   <!-- END LIBRARIES DEPENDENCIES -->
   <!-- ########################################################################## -->

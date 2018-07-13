@@ -1,0 +1,28 @@
+<configuration>
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+	<encoder>
+      <pattern>[%-5level] - [%X{correlationId}] - [%date{dd/MM/yyyy HH:mm:ss}] - [%-26logger{26}] - [%method] - [%message]%n%rEx{full}</pattern>
+    </encoder>
+  </appender>
+  
+  <appender name="ROLLING" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>http-request.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+      <!-- rollover daily -->
+      <fileNamePattern>http-request-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+       <!-- each file should be at most 100MB, keep 60 days worth of history, but at most 20GB -->
+       <maxFileSize>100MB</maxFileSize>    
+       <maxHistory>60</maxHistory>
+       <totalSizeCap>20GB</totalSizeCap>
+    </rollingPolicy>
+    <encoder>
+      <pattern>[%-5level] - [%X{correlationId}] - [%date{dd/MM/yyyy HH:mm:ss}] - [-26%logger{26}] - [%method] - [%message]%n%rEx{full}</pattern>
+    </encoder>
+  </appender>
+ 
+  
+  <root level="info">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="ROLLING"/>
+  </root>  
+</configuration>

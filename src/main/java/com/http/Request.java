@@ -45,6 +45,9 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.apache.log4j.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -65,7 +68,7 @@ import org.apache.http.util.EntityUtils;
  */
 public class Request {
 	
-	//private static final Logger	LOGGER = LoggerFactory.getLogger(Request.class);
+	private static final Logger	LOGGER = LoggerFactory.getLogger(Request.class);
 	
 	/**
 	 * Internal Errors
@@ -110,9 +113,8 @@ public class Request {
 	 * Constructor
 	 */
 	public Request() {
-		//TODO remove this
-		//org.apache.log4j.Logger.getLogger(org.apache.http.client.protocol.ResponseProcessCookies.class).setLevel(Level.OFF);
-		//org.apache.log4j.Logger.getLogger(org.apache.http.impl.execchain.RetryExec.class).setLevel(Level.OFF);
+		org.apache.log4j.Logger.getLogger(org.apache.http.client.protocol.ResponseProcessCookies.class).setLevel(Level.OFF);
+		org.apache.log4j.Logger.getLogger(org.apache.http.impl.execchain.RetryExec.class).setLevel(Level.OFF);
 	}
 	
 	/**
@@ -545,19 +547,19 @@ public class Request {
 	        }
 	        catch (SSLException e) {
 	        	this.internalErrorCode = ERROR_SSL;
-	        	//LOGGER.debug("SSL Unrecognized");
+	        	LOGGER.debug("SSL Unrecognized");
 	        }
 	        catch (ConnectTimeoutException e) {
 	        	this.internalErrorCode = ERROR_CONNECTION_TIME_OUT;
-	        	//LOGGER.debug("Http Connection Timeout");
+	        	LOGGER.debug("Http Connection Timeout");
 	        }
 	        catch (NoHttpResponseException e) {
 	        	this.internalErrorCode = ERROR_RESPONSE_TIME_OUT;
-	        	//LOGGER.debug("Http Response Timeout");
+	        	LOGGER.debug("Http Response Timeout");
 	        }
 	        catch (SocketTimeoutException e) {
 	        	this.internalErrorCode = ERROR_SOCKET_TIME_OUT;
-	        	//LOGGER.debug("Connection Timeout");
+	        	LOGGER.debug("Connection Timeout");
 	        }
 	        catch (SocketException e) {
 	        	this.internalErrorCode = ERROR_UNDEFIEND;
@@ -565,6 +567,7 @@ public class Request {
 	        catch (Exception e) {
 	        	e.printStackTrace();
 	        	this.internalErrorCode = ERROR_UNDEFIEND;
+	        	LOGGER.error("error in openSession",e);
 	        }
 	        finally {
 	            try {
@@ -576,7 +579,7 @@ public class Request {
 		catch (Exception e) {
 			e.printStackTrace();
 			this.internalErrorCode = ERROR_UNDEFIEND;
-			//logger.error("error in openSession",e);
+			LOGGER.error("error in openSession",e);
 		}
 		finally {
             try {
@@ -638,19 +641,19 @@ public class Request {
 	        }
 	        catch (SSLException e) {
 	        	this.internalErrorCode = ERROR_SSL;
-	        	//LOGGER.debug("SSL Unrecognized");
+	        	LOGGER.debug("SSL Unrecognized");
 	        }
 	        catch (ConnectTimeoutException e) {
 	        	this.internalErrorCode = ERROR_CONNECTION_TIME_OUT;
-	        	//LOGGER.debug("Http Connection Timeout");
+	        	LOGGER.debug("Http Connection Timeout");
 	        }
 	        catch (NoHttpResponseException e) {
 	        	this.internalErrorCode = ERROR_RESPONSE_TIME_OUT;
-	        	//LOGGER.debug("Http Response Timeout");
+	        	LOGGER.debug("Http Response Timeout");
 	        }
 	        catch (SocketTimeoutException e) {
 	        	this.internalErrorCode = ERROR_SOCKET_TIME_OUT;
-	        	//LOGGER.debug("Connection Timeout");
+	        	LOGGER.debug("Connection Timeout");
 	        }
 	        catch (SocketException e) {
 	        	this.internalErrorCode = Request.ERROR_UNDEFIEND;
@@ -658,6 +661,7 @@ public class Request {
 	        catch (Exception e) {
 	        	e.printStackTrace();
 	        	this.internalErrorCode = Request.ERROR_UNDEFIEND;
+	        	LOGGER.error("error in openSession",e);
 	        }
 	        finally {
 	            try {
@@ -668,6 +672,7 @@ public class Request {
 		}
 		catch (Exception e) {
 			this.internalErrorCode = Request.ERROR_UNDEFIEND;
+			LOGGER.error("error in openSession",e);
 		}
 		finally {
             try {
