@@ -51,6 +51,25 @@
 	    <version>1.7.25</version>
 	</dependency>
 	
+	<dependency>
+	    <groupId>commons-io</groupId>
+	    <artifactId>commons-io</artifactId>
+	    <version>2.6</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.brotli</groupId>
+	    <artifactId>dec</artifactId>
+	    <version>0.1.2</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>org.brotli</groupId>
+	    <artifactId>parent</artifactId>
+	    <version>0.1.2</version>
+	    <type>pom</type>
+	</dependency>
+	
 	<!-- Force version of JUnit because of issue with parent dependencies -->
 	<dependency>
 		<groupId>junit</groupId>

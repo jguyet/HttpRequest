@@ -1,0 +1,19 @@
+[INFO ] - [] - [01/08/2018 18:50:26] - [-26com.http.Request] - [sendGet] - [[Lorg.apache.http.Header;@72057ecf]
+[ERROR] - [] - [01/08/2018 19:11:50] - [-26com.http.Request] - [sendGet] - [error in openSession]
+java.io.IOException: Attempted read from closed stream.
+	at org.apache.http.impl.io.ChunkedInputStream.read(ChunkedInputStream.java:179)
+	at org.apache.http.conn.EofSensorInputStream.read(EofSensorInputStream.java:137)
+	at org.brotli.dec.BitReader.readMoreInput(BitReader.java:81)
+	... 7 common frames omitted
+Wrapped by: org.brotli.dec.BrotliRuntimeException: Failed to read input
+	at org.brotli.dec.BitReader.readMoreInput(BitReader.java:92)
+	at org.brotli.dec.BitReader.prepare(BitReader.java:153)
+	at org.brotli.dec.BitReader.init(BitReader.java:149)
+	at org.brotli.dec.State.setInput(State.java:100)
+	at org.brotli.dec.BrotliInputStream.<init>(BrotliInputStream.java:98)
+	... 3 common frames omitted
+Wrapped by: java.io.IOException: Brotli decoder initialization failed
+	at org.brotli.dec.BrotliInputStream.<init>(BrotliInputStream.java:100)
+	at com.http.Request.sendGet(Request.java:643)
+	at com.http.Request.execute(Request.java:714)
+	at com.http.TestRunner.main(TestRunner.java:28)

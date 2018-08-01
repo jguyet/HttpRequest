@@ -1,5 +1,6 @@
 package com.http;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -17,6 +18,7 @@ import javax.net.ssl.SSLException;
 
 import java.util.TreeMap;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
@@ -48,6 +50,8 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.brotli.dec.BrotliInputStream;
 
 
 /**
@@ -530,12 +534,24 @@ public class Request {
 	        try {
 				response = httpclient.execute(httpPost, context);
 				this.HttpResponse = response;
-				content = EntityUtils.toString(response.getEntity(), "UTF-8");
             	this.statusCode = response.getStatusLine().getStatusCode();
             	if (response.getHeaders("Location").length >= 1) {
             		String redirection = response.getHeaders("Location")[0].getValue();
             		this.setUrl(redirection);
             	}
+            	if (response.getHeaders("Content-Encoding").length >= 1) {
+					String encoding = response.getHeaders("Content-Encoding")[0].getValue();
+					
+					if (encoding.equalsIgnoreCase("br")) {
+						BrotliInputStream b = new BrotliInputStream(response.getEntity().getContent());
+						
+						content = IOUtils.toString(b, "UTF-8");
+					} else {
+						LOGGER.debug("CONTENT ENCODING " + response.getEntity().getContentEncoding().getValue() + " not genered");
+					}
+				} else {
+					content = EntityUtils.toString(response.getEntity(), "UTF-8");
+				}
 			}
 	        catch (ClientProtocolException e)  {
 	        	if (this.proxyProtocol.equalsIgnoreCase("http")) {
@@ -625,11 +641,23 @@ public class Request {
 	        try {
 				response = httpclient.execute(httpGet, context);
 				this.HttpResponse = response;
-				content = EntityUtils.toString(response.getEntity(), "UTF-8");
 				if (response.getHeaders("Location").length >= 1) {
             		String redirection = response.getHeaders("Location")[0].getValue();
             		this.setUrl(redirection);
             	}
+				if (response.getHeaders("Content-Encoding").length >= 1) {
+					String encoding = response.getHeaders("Content-Encoding")[0].getValue();
+					
+					if (encoding.equalsIgnoreCase("br")) {
+						BrotliInputStream b = new BrotliInputStream(response.getEntity().getContent());
+						
+						content = IOUtils.toString(b, "UTF-8");
+					} else {
+						LOGGER.debug("CONTENT ENCODING " + response.getEntity().getContentEncoding().getValue() + " not genered");
+					}
+				} else {
+					content = EntityUtils.toString(response.getEntity(), "UTF-8");
+				}
             	this.statusCode = response.getStatusLine().getStatusCode();
 			}
 	        catch (ClientProtocolException e) {
