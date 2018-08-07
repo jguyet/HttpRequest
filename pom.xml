@@ -4,11 +4,16 @@
   <!-- ########################################################################## -->
   <!-- MAVEN PROJECT HDR -->
   <modelVersion>4.0.0</modelVersion>
-  <groupId>request</groupId>
+  <groupId>com.weoohh</groupId>
   <artifactId>request</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   
   <packaging>jar</packaging>
+  
+  <name>${project.groupId}:${project.artifactId}</name>
+  <description>Library of Http/Https simple request Encryption(BR/NO), manage proxy(http/https)</description>
+  <url>https://github.com/jguyet/HttpRequest</url>
+  
   <!-- ########################################################################## -->
   <!-- UTF-8 CONVERTION -->
   <properties>
@@ -19,6 +24,32 @@
 	<!-- Force version of JUnit because of issue with parent dependencies -->
 	<junit.version>4.12</junit.version>
   </properties>
+  <!-- ########################################################################## -->
+  <!-- LICENSE -->
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <!-- ########################################################################## -->
+  <!-- DEVELOPER -->
+  <developers>
+    <developer>
+      <name>Guyet Jeremy</name>
+      <email>jguyet.weoohh@gmail.com</email>
+      <organization>Weoohh</organization>
+      <organizationUrl>http://www.weoohh.com</organizationUrl>
+    </developer>
+  </developers>
+  <!-- ########################################################################## -->
+  <!-- SVN FROM GITHUB -->
+  <scm>
+ 	<connection>scm:git:git://github.com/jguyet/HttpRequest.git</connection>
+	<developerConnection>scm:git:ssh://github.com/jguyet/HttpRequest.git</developerConnection>
+	<url>http://github.com/jguyet/HttpRequest/tree/master</url>
+  </scm>
   <!-- ########################################################################## -->
   <!-- LIBRARIES DEPENDENCIES -->
   <dependencies>
@@ -94,8 +125,70 @@
 	          <target>1.8</target>
 	        </configuration>
 	      </plugin>
+		  <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-source-plugin</artifactId>
+	      <version>2.2.1</version>
+	      <executions>
+	        <execution>
+	          <id>attach-sources</id>
+	          <goals>
+	            <goal>jar-no-fork</goal>
+	          </goals>
+	        </execution>
+	      </executions>
+	    </plugin>
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-javadoc-plugin</artifactId>
+	      <version>2.9.1</version>
+	      <executions>
+	        <execution>
+	          <id>attach-javadocs</id>
+	          <goals>
+	            <goal>jar</goal>
+	          </goals>
+	        </execution>
+	      </executions>
+	     </plugin>
+	    <plugin>
+	      <groupId>org.apache.maven.plugins</groupId>
+	      <artifactId>maven-gpg-plugin</artifactId>
+	      <version>1.5</version>
+	      <executions>
+	        <execution>
+	          <id>sign-artifacts</id>
+	          <phase>verify</phase>
+	          <goals>
+	            <goal>sign</goal>
+	          </goals>
+	        </execution>
+	      </executions>
+	    </plugin>
+	    <plugin>
+		  <groupId>org.sonatype.plugins</groupId>
+		  <artifactId>nexus-staging-maven-plugin</artifactId>
+		  <version>1.6.7</version>
+		  <extensions>true</extensions>
+		  <configuration>
+		     <serverId>ossrh</serverId>
+		     <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+		     <autoReleaseAfterClose>true</autoReleaseAfterClose>
+		  </configuration>
+		</plugin>
 	      <!-- END PLUGIN COMPILER -->
 	      <!-- ###################################################################### -->
 	  </plugins>
   </build>
+  
+  <distributionManagement>
+	  <snapshotRepository>
+	    <id>ossrh</id>
+	    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+	  </snapshotRepository>
+	  <repository>
+	    <id>ossrh</id>
+	    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+	  </repository>
+	</distributionManagement>
 </project>

@@ -5,6 +5,8 @@
 
  import org.junit.Test;
 
+import com.weoohh.http.Request;
+
 public class TestRequest {
 
 	@Test

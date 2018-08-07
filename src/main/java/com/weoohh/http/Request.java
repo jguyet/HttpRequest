@@ -1,4 +1,4 @@
-package com.http;
+package com.weoohh.http;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -123,7 +123,7 @@ public class Request {
 	
 	/**
 	 * Method execute set POST
-	 * @return
+	 * @return Request
 	 */
 	public Request setPost() {
 		if (GET)
@@ -134,7 +134,7 @@ public class Request {
 	
 	/**
 	 * Method execute set GET (default)
-	 * @return
+	 * @return Request
 	 */
 	public Request setGET() {
 		if (POST)
@@ -145,11 +145,11 @@ public class Request {
 	
 	/**
 	 * active proxy witch credential
-	 * @param ip
-	 * @param port
-	 * @param username
-	 * @param password
-	 * @return
+	 * @param ip String
+	 * @param port int
+	 * @param username String
+	 * @param password String
+	 * @return Request
 	 */
 	public Request setProxy(String ip, int port, String username, String password) {
 		this.proxyIP = ip;
@@ -162,9 +162,9 @@ public class Request {
 	
 	/**
 	 * active proxy
-	 * @param ip
-	 * @param port
-	 * @return
+	 * @param ip String
+	 * @param port int
+	 * @return Request
 	 */
 	public Request setProxy(String ip, int port) {
 		this.proxyIP = ip;
@@ -175,7 +175,7 @@ public class Request {
 	
 	/**
 	 * change protocol connection proxy https
-	 * @return
+	 * @return Request
 	 */
 	public Request setProxyHttps() {
 		this.proxyProtocol = "https";
@@ -184,7 +184,7 @@ public class Request {
 	
 	/**
 	 * change protocol connection proxy http (default)
-	 * @return
+	 * @return Request
 	 */
 	public Request setProxyHttp() {
 		this.proxyProtocol = "http";
@@ -192,9 +192,9 @@ public class Request {
 	}
 	
 	/**
-	 * replace Map<String, String> header map
-	 * @param h
-	 * @return
+	 * replace header map
+	 * @param h map
+	 * @return Request
 	 */
 	public Request setHeader(Map<String, String> h) {
 		if (h.containsKey("Referer"))
@@ -205,9 +205,9 @@ public class Request {
 	
 	/**
 	 * Add key and value into the header
-	 * @param key
-	 * @param value
-	 * @return
+	 * @param key String
+	 * @param value String
+	 * @return Request
 	 */
 	public Request addHeader(String key, String value) {
 		if (key.equalsIgnoreCase("Referer"))
@@ -218,14 +218,18 @@ public class Request {
 		return (this);
 	}
 	
+	/**
+	 * get Header map
+	 * @return Map
+	 */
 	public Map<String, String> getHeader() {
 		return this.header;
 	}
 	
 	/**
 	 * remove key and value into the header
-	 * @param key
-	 * @return
+	 * @param key String
+	 * @return Request
 	 */
 	public Request removeHeader(String key) {
 		if (this.header.containsKey(key))
@@ -235,7 +239,7 @@ public class Request {
 	
 	/**
 	 * clean current header
-	 * @return
+	 * @return Request
 	 */
 	public Request clearHeader() {
 		this.header.clear();
@@ -244,7 +248,7 @@ public class Request {
 	
 	/**
 	 * get all cookies
-	 * @return
+	 * @return CookieStore
 	 */
 	public CookieStore getCookieStore() {
 		return (cookieStore);
@@ -252,8 +256,8 @@ public class Request {
 	
 	/**
 	 * replace cookieStore
-	 * @param cook
-	 * @return
+	 * @param cook CookieStore
+	 * @return Request
 	 */
 	public Request setCookieStore(CookieStore cook) {
 		this.cookieStore = cook;
@@ -262,8 +266,8 @@ public class Request {
 	
 	/**
 	 * add one Cookie into current cookieStore
-	 * @param cook
-	 * @return
+	 * @param cook Cookie
+	 * @return Request
 	 */
 	public Request addCookie(Cookie cook) {
 		this.cookieStore.addCookie(cook);
@@ -272,7 +276,7 @@ public class Request {
 	
 	/**
 	 * clean cookieStore
-	 * @return
+	 * @return Request
 	 */
 	public Request clearCookie() {
 		this.cookieStore.clear();
@@ -281,7 +285,7 @@ public class Request {
 	
 	/**
 	 * set protocol http (default)
-	 * @return
+	 * @return Requests
 	 */
 	public Request setProtocolHttp() {
 		this.protocol = "http";
@@ -290,7 +294,7 @@ public class Request {
 	
 	/**
 	 * set protocol https (default)
-	 * @return
+	 * @return Request
 	 */
 	public Request setProtocolHttps() {
 		this.protocol = "https";
@@ -299,30 +303,42 @@ public class Request {
 	
 	/**
 	 * change url syntax = http://website.com
-	 * @param url
-	 * @return
+	 * @param url String
+	 * @return Request
 	 */
 	public Request setUrl(String url) {
 		this.url = url;
 		return (this);
 	}
 	
+	/**
+	 * Get Current URL
+	 * @return String
+	 */
 	public String getUrl() {
 		return (this.url);
 	}
 	
+	/**
+	 * Get Current Referer
+	 * @return String
+	 */
 	public String getReferer() {
 		return (this.referer);
 	}
 	
+	/**
+	 * set your referer
+	 * @param url String
+	 */
 	public void setReferer(String url) {
 		this.referer = url;
 	}
 	
 	/**
 	 * replace params into your POST
-	 * @param params
-	 * @return
+	 * @param params List of NameValuePair
+	 * @return Request
 	 */
 	public Request setParams(List<NameValuePair> params) {
 		this.params = params;
@@ -331,8 +347,9 @@ public class Request {
 	
 	/**
 	 * add one param into your POST
-	 * @param params
-	 * @return
+	 * @param key String
+	 * @param value String
+	 * @return Request
 	 */
 	public Request addParam(String key, String value) {
 		params.add(new BasicNameValuePair(key, value));
@@ -341,13 +358,18 @@ public class Request {
 	
 	/**
 	 * clean all params of your POST
-	 * @return
+	 * @return Request
 	 */
 	public Request clearParam() {
 		params.clear();
 		return (this);
 	}
 	
+	/**
+	 * Set HttpEntity
+	 * @param e HttpEntity
+	 * @return Request
+	 */
 	public Request setHttpEntity(HttpEntity e) {
 		httpEntity = e;
 		return (this);
@@ -355,15 +377,15 @@ public class Request {
 	
 	/**
 	 * return if use proxy
-	 * @return
+	 * @return Boolean
 	 */
-	public boolean useProxi() {
+	public boolean enabledProxy() {
 		return (this.useProxy);
 	}
 	
 	/**
 	 * return statut code after execute (base 0)
-	 * @return
+	 * @return int
 	 */
 	public int getStatusCode() {
 		return (this.statusCode);
@@ -371,7 +393,7 @@ public class Request {
 	
 	/**
 	 * return internal error code
-	 * @return
+	 * @return int
 	 */
 	public int getInternalError() {
 		return (this.internalErrorCode);
@@ -379,7 +401,7 @@ public class Request {
 	
 	/**
 	 * Set TimeOut (default : 60000millis)
-	 * @param millis
+	 * @param millis int
 	 */
 	public void setTimeOut(int millis) {
 		this.timeout = millis;
@@ -387,12 +409,15 @@ public class Request {
 	
 	/**
 	 * Return timeOut on millisecondes
-	 * @return
+	 * @return int
 	 */
 	public int getTimeOut() {
 		return (this.timeout);
 	}
 	
+	/**
+	 * Set default Apple computer header 
+	 */
 	public void setDefaultHeader() {
 		Map<String, String> header = new TreeMap<String, String>();
 
@@ -406,23 +431,31 @@ public class Request {
 	
 	/**
 	 * return content after execute
-	 * @return
+	 * @return String
 	 */
 	public String getContent() {
 		return (this.content);
 	}
 	
+	/**
+	 * get HttpResponse
+	 * @return HttpResponse
+	 */
 	public HttpResponse getHttpReponse() {
 		return (this.HttpResponse);
 	}
 	
+	/**
+	 * Check if is internal librarie error
+	 * @return boolean
+	 */
 	public boolean isInternalError() {
 		return (internalErrorCode != Request.NO_ERROR);
 	}
 	
 	/**
 	 * check statusCode and if error detected
-	 * @return
+	 * @return boolean
 	 */
 	public boolean isSuccess() {
 		if (internalErrorCode != Request.NO_ERROR
@@ -438,7 +471,7 @@ public class Request {
 	
 	/**
 	 * Test proxy return false if connection is null
-	 * @return
+	 * @return boolean
 	 */
 	public boolean isValideProxy() {
 		try {

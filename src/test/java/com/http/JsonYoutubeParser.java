@@ -1,5 +1,7 @@
 package com.http;
 
+import com.weoohh.http.Request;
+
 public class JsonYoutubeParser {
 
 	private static String getScopContent(String scop)
