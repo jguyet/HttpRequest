@@ -22,7 +22,7 @@
 	<java.target.version>1.8</java.target.version>
 	<log4j.version>2.6.2</log4j.version>
 	<!-- Force version of JUnit because of issue with parent dependencies -->
-	<junit.version>4.12</junit.version>
+	<junit.version>4.13.1</junit.version>
   </properties>
   <!-- ########################################################################## -->
   <!-- LICENSE -->
