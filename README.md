@@ -30,7 +30,7 @@ public class Main {
         Request r = new Request();
 
         r.setUrl("http://www.google.com/")
-			.setGet()
+			.setGET()
 			.execute();
 
         System.out.println(r.getStatusCode());
@@ -62,6 +62,38 @@ public class Main {
         System.out.println(r.getStatusCode());
     }
 }
+````
+
+#### Proxy Request
+
+````java
+import com.weoohh.http.Request;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Request r = new Request();
+
+        r.setUrl("http://www.google.com/")
+			.setProxy("127.0.0.1", 80, "username", "password")
+			.setGET()
+			.execute();
+
+        System.out.println(r.getContent());
+    }
+}
+````
+
+## Compile :
+
+````shell
+$ mvn clean package
+````
+
+## Run tests
+
+````shell
+$ mvn clean test
 ````
 
 ## Example :
